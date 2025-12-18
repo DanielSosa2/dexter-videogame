@@ -1,0 +1,154 @@
+/*  RESET  */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+/* BODY Y FONDO */
+body {
+    background: linear-gradient(135deg, #1e1e2f, #3a0ca3);
+    color: #fff;
+    /* Texto blanco para contraste */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER Y NAVBAR */
+
+header {
+    padding: 10px 20px;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo img {
+    width: 60px;
+    height: auto;
+}
+
+.titulo h1 {
+    font-size: 2rem;
+    color: #ffdd00;
+    text-shadow: 2px 2px #ff0000;
+    
+}
+
+/* MAIN */
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    position: relative;
+}
+
+#game-container {
+    /* width: 800px;
+    /* tamaño del canvas */
+    /* height: 500px; */
+    background: linear-gradient(180deg, #0f0c29, #302b63, #24243e);
+    /* Fondo del juego */
+    border: 4px solid #ff006e;
+    /* borde llamativo tipo arcade */
+    border-radius: 15px;
+    box-shadow: 0 0 20px #ff006e, 0 0 40px #ff006e inset;
+    /* sombra para efecto vibrante */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* PUBLICIDAD */
+#ad-left {
+    margin-left: 40px;
+    width: 350px;
+    height: 500px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid #ffdd00;
+    border-radius: 10px;
+    color: #ffdd00;
+    box-shadow: 0 0 10px #ffdd00;
+    transition: transform 0.3s;
+}
+
+.banner-link {
+  display: block;
+}
+.banner-link img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  height: 500px;
+}
+
+
+/* efecto hover para llamar la atención */
+#ad-left:hover {
+    transform: scale(1.05);
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* FOOTER */
+footer {
+    padding: 15px;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #ffdd00;
+    text-shadow: 1px 1px #ff0000;
+    font-weight: bold;
+}
+
+/* CANVAS- donde esta el jueguito */
+canvas#game {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 10px;
+}
+
+/* Tipografia -otros */
+p,
+span,
+h2 {
+    font-family: 'Verdana', sans-serif;
+}
+
+h1,
+h2,
+h3 {
+    text-transform: uppercase;
+}
+
+p {
+    text-shadow: 1px 1px #000;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1000px) {
+    main {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #game-container {
+        width: 90%;
+        height: 400px;
+    }
+
+    #ad-left {
+        position: relative;
+        width: 80%;
+        margin-top: 20px;
+        height: 100px;
+    }
+}

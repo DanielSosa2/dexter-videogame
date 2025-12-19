@@ -13,9 +13,12 @@ canvas.height = 600;
 
 let score = 0;
 let distance = 0;
-let lives = 2;
+const START_LIVES = 2;
+let lives = START_LIVES;
 let gameState = "start"; //"start", "playing", "gameover"
+let gameRunning = false;
 let speed = 5;
+let ground_y;
 
 let attackText = {
     text: "",
@@ -24,6 +27,7 @@ let attackText = {
     timer: 0
 };
 
+
 //CONSTANTES
 const crouch_height = 40;
 const stand_height = 120;
@@ -31,7 +35,7 @@ const stand_height = 120;
 const gravity = 0.6;
 
 
-const ground_y = canvas.height - stand_height;
+// const ground_y = canvas.height - stand_height;
 
 const controls = {
     jump: false,
@@ -67,9 +71,9 @@ document.addEventListener("keydown", (e) => {
         e.preventDefault();
     }
 
-    // START
     if (e.key === "Enter") {
         startGame();
+        console.log("ENTER")
         return;
     }
 
@@ -79,6 +83,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") crouch(true);
     if (e.key === "z") attack();
 });
+
 
 document.addEventListener("keyup", (e) => {
     if (e.key === "ArrowDown") {
@@ -91,12 +96,7 @@ const bindTouch = (id, action) => {
 
     btn.addEventListener("touchstart", (e) => {
         e.preventDefault();
-
-        // 👇 ARRANCA EL JUEGO SI ESTÁ EN START
-        if (gameState !== "playing") {
-            startGame();
-        }
-
+        if (gameState !== "playing") return;
         controls[action] = true;
     });
     btn.addEventListener("touchend", () => {
@@ -109,13 +109,18 @@ document.addEventListener("DOMContentLoaded", () => {
     bindTouch("btn-jump", "jump");
     bindTouch("btn-crouch", "crouch");
     bindTouch("btn-attack", "attack");
+    resizeCanvas();
+    updateGround();
+
+    draw();
 
 });
+
 document.addEventListener("touchstart", () => {
-    if (gameState !== "playing") {
+    if (gameState === "start" || gameState === "gameover") {
         startGame();
     }
-});
+}, { once: true });
 
 
 
@@ -127,6 +132,9 @@ document.addEventListener("touchstart", () => {
 function jump() {
     player.velY = -13;
     player.jumping = true;
+}
+function updateGround() {
+    ground_y = canvas.height - stand_height;
 }
 
 function crouch(active) {
@@ -208,35 +216,55 @@ function createObstacle() {
     obstacles.push(obstacle);
 }
 function startGame() {
+    console.log("Estado actual:", gameState);
+    updateGround();
     if (gameState === "start") {
         gameState = "playing";
-    } else if (gameState === "gameover") {
+        gameRunning = true;
+        gameLoop();
+    }
+    else if (gameState === "gameover") {
         resetGame();
     }
 }
-
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
 function resetGame() {
     score = 0;
     distance = 0;
-    lives = 2;
-    speed = 5;
-
-    enemies.length = 0;
-
+    lives = START_LIVES; // 👈 CLAVE
+    player.x = 50;
     player.y = ground_y - player.height;
     player.velY = 0;
     player.jumping = false;
     player.attacking = false;
 
+    obstacles.length = 0;
+    enemies.length = 0;
+
     gameState = "playing";
+    gameRunning = true;
+    gameLoop();
 }
+
+
+
+function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+}
+function updateGround() {
+    ground_y = canvas.height - stand_height;
+}
+
+// resizeCanvas();
+// window.addEventListener("resize", resizeCanvas);
+
+window.addEventListener("resize", () => {
+    resizeCanvas();
+    updateGround();
+});
+
+
 
 
 /**************************************************
@@ -244,16 +272,6 @@ function resetGame() {
  **************************************************/
 
 function update() {
-    function startGame() {
-        if (gameState === "start") {
-            gameState = "playing";
-        }
-
-        if (gameState === "gameover") {
-            resetGame();
-        }
-    }
-
     // 1️⃣ LEER CONTROLES (PC + MOBILE)
     if (controls.jump && !player.jumping) {
         jump();
@@ -363,6 +381,7 @@ function checkCollisions() {
 
             if (lives <= 0) {
                 gameState = "gameover";
+                gameRunning = false;
             }
         }
     });
@@ -373,7 +392,46 @@ function checkCollisions() {
  **************************************************/
 
 function draw() {
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // 🔥 RESET TOTAL
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // START SCREEN
+    if (gameState === "start") {
+        ctx.fillStyle = "rgba(0,0,0,0.8)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // ctx.fillStyle = "red";
+        // ctx.fillRect(0, 0, 50, 50);
+
+        ctx.textAlign = "center";
+        ctx.font = "36px 'Press Start 2P'";
+        ctx.fillStyle = "yellow";
+        ctx.fillText("DEXTER THE NINJA", canvas.width / 2, canvas.height / 2 - 40);
+
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText("ENTER o TOCÁ PARA COMENZAR", canvas.width / 2, canvas.height / 2 + 10);
+
+        return; // 👈 CLAVE
+    }
+
+    // GAME OVER SCREEN
+    if (gameState === "gameover") {
+        ctx.fillStyle = "rgba(0,0,0,0.8)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.textAlign = "center";
+        ctx.font = "56px 'Press Start 2P'";
+        ctx.fillStyle = "red";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 20);
+
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText("ENTER o TOCAR PARA REINICIAR", canvas.width / 2, canvas.height / 2 + 30);
+
+        return; // 👈 CLAVE
+    }
+
+    // ⬇️ TODO LO DEMÁS DEL DRAW NORMAL
     ctx.fillStyle = "brown"
     ctx.fillRect(0, ground_y - 2, canvas.width, 2);
     //OBSTACULOS
@@ -440,36 +498,8 @@ function draw() {
     ctx.fillStyle = "red";
     ctx.fillText(`SCORE: ${score}`, margin, 90);
 
-    // START
-    if (gameState === "start") {
-        ctx.font = "36px 'Press Start 2P'";
-        ctx.textAlign = "center";
-
-        ctx.fillStyle = "yellow";
-        ctx.fillText("DEXTER THE NINJA", canvas.width / 2, 250);
-
-        ctx.font = "20px Arial";
-        ctx.textAlign = "center"
-        ctx.fillText("Presioná ENTER para comenzar", canvas.width / 2, 280);
-    }
-    // GAME OVER
-    if (gameState === "gameover") {
-        // fondo oscuro
-        ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.font = "56px 'Press Start 2P'";
-        ctx.textAlign = "center"
-        ctx.fillStyle = "red";
-        ctx.fillText("GAME OVER", canvas.width / 2, 250);
-
-        ctx.font = "20px Arial";
-        ctx.fillText("Presioná ENTER para reiniciar", canvas.width / 2, 300);
-    }
-
 
 }
-
 
 
 
@@ -480,10 +510,13 @@ function draw() {
  **************************************************/
 
 function gameLoop() {
+    if (!gameRunning) return;
+
     update();
     draw();
     requestAnimationFrame(gameLoop);
 }
+
 
 
 /**************************************************
@@ -495,4 +528,3 @@ setInterval(() => {
         createEnemy();
     }
 }, 2000);
-gameLoop();

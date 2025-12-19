@@ -11,6 +11,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 600;
 
+let blinkTimer = 0;
 let score = 0;
 let distance = 0;
 const START_LIVES = 2;
@@ -395,24 +396,58 @@ function draw() {
     ctx.setTransform(1, 0, 0, 1, 0, 0); // 🔥 RESET TOTAL
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // START SCREEN
     if (gameState === "start") {
-        ctx.fillStyle = "rgba(0,0,0,0.8)";
+        ctx.fillStyle = "rgba(0,0,0,0.85)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        // ctx.fillStyle = "red";
-        // ctx.fillRect(0, 0, 50, 50);
 
         ctx.textAlign = "center";
+
+        // TÍTULO
         ctx.font = "36px 'Press Start 2P'";
+        ctx.shadowColor = "red";
+        ctx.shadowBlur = 10;
         ctx.fillStyle = "yellow";
-        ctx.fillText("DEXTER THE NINJA", canvas.width / 2, canvas.height / 2 - 40);
+        ctx.fillText("DEXTER THE NINJA", canvas.width / 2, 100);
+        ctx.shadowBlur = 0; // reset
 
-        ctx.font = "20px Arial";
+        // SUBTÍTULO
+        ctx.font = "18px Arial";
         ctx.fillStyle = "white";
-        ctx.fillText("ENTER o TOCÁ PARA COMENZAR", canvas.width / 2, canvas.height / 2 + 10);
+        ctx.fillText("SOBREVIVÍ, ESQUIVÁ Y ATACÁ", canvas.width / 2, 140);
 
-        return; // 👈 CLAVE
+        // --- LEYENDA VISUAL ---
+        const baseY = 200;
+        const leftX = canvas.width / 2 - 180;
+
+        ctx.textAlign = "left";
+        ctx.font = "16px Arial";
+
+        // ENEMIGO
+        ctx.fillStyle = "red";
+        ctx.fillRect(leftX, baseY, 30, 30);
+        ctx.fillStyle = "white";
+        ctx.fillText("ENEMIGO — ATACÁ (Z)", leftX + 45, baseY + 20);
+
+        // OBSTÁCULO
+        ctx.fillStyle = "brown";
+        ctx.fillRect(leftX, baseY + 50, 30, 30);
+        ctx.fillStyle = "white";
+        ctx.fillText("OBSTÁCULO — ESQUIVÁ", leftX + 45, baseY + 70);
+
+        // CONTROLES
+        ctx.textAlign = "center";
+        ctx.fillStyle = "white";
+        ctx.fillText("SALTAR: ESPACIO / TOQUE", canvas.width / 2, baseY + 130);
+        ctx.fillText("AGACHARSE: ↓", canvas.width / 2, baseY + 160);
+
+        // START
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "yellow";
+        ctx.fillText("ENTER o TOCÁ PARA COMENZAR", canvas.width / 2, canvas.height - 80);
+
+        return;
     }
+
 
     // GAME OVER SCREEN
     if (gameState === "gameover") {
@@ -493,7 +528,16 @@ function draw() {
     // Texto
     ctx.fillStyle = "white";
     ctx.fillText(`DIST: ${distance}`, margin, 40);
-    ctx.fillText(`VIDAS: ${lives}`, margin, 65);
+    // CORAZONES (VIDAS)
+    const heartSize = 24;
+    const heartSpacing = 35;
+    const heartsX = margin;
+    const heartsY = 65;
+    for (let i = 0; i < lives; i++) {
+        ctx.font = `${heartSize}px Arial`;
+        ctx.fillStyle = "red";
+        ctx.fillText("❤️", heartsX + i * heartSpacing, heartsY);
+    }
 
     ctx.fillStyle = "red";
     ctx.fillText(`SCORE: ${score}`, margin, 90);

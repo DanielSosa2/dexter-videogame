@@ -8,6 +8,9 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+let imagesLoaded = 0;       // Contador de imágenes que ya cargaron
+const totalImages = 3;      // Cantidad total de imágenes del jugador
+
 canvas.width = 800;
 canvas.height = 600;
 
@@ -30,11 +33,25 @@ let attackText = {
 
 
 //CONSTANTES
-const crouch_height = 40;
-const stand_height = 120;
+const crouch_height = 60;
+const stand_height = 140;
 
 const gravity = 0.6;
+// IMÁGENES DEL JUGADOR
+const playerStanding = new Image();
+playerStanding.src = "assets/player/Ninja-parado.png";
+playerStanding.onload = () => console.log("standing listo");
+playerStanding.onerror = () => console.error("Error cargando standing.png");
 
+const playerJumping = new Image();
+playerJumping.src = "assets/player/Ninja-saltando.png";
+playerJumping.onload = () => console.log("jumping listo");
+playerJumping.onerror = () => console.error("Error cargando jumping.png");
+
+const playerCrouching = new Image();
+playerCrouching.src = "assets/player/Ninja-agachado.png";
+playerCrouching.onload = () => console.log("crouching listo");
+playerCrouching.onerror = () => console.error("Error cargando crouching.png");
 
 // const ground_y = canvas.height - stand_height;
 
@@ -206,6 +223,13 @@ function createEnemy() {
     enemies.push(enemy);
 }
 
+function checkAllLoaded() {
+    imagesLoaded++;
+    if (imagesLoaded === totalImages) {
+        // Todas las imágenes están listas
+        startGame();  // iniciar el juego o el gameLoop
+    }
+}
 function createObstacle() {
     const obstacle = {
         x: canvas.width,
@@ -256,6 +280,7 @@ function resizeCanvas() {
 function updateGround() {
     ground_y = canvas.height - stand_height;
 }
+
 
 // resizeCanvas();
 // window.addEventListener("resize", resizeCanvas);
@@ -474,10 +499,20 @@ function draw() {
     obstacles.forEach(obstacle => {
         ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
     });
+
+
     // Jugador //PARPADEO AL RECIBIR DAÑO
     if (!player.hurt || player.hurtTimer % 6 < 3) {
-        ctx.fillStyle = "yellow";
-        ctx.fillRect(player.x, player.y, player.width, player.height);
+        let img;
+        if (player.jumping) {
+            img = playerJumping;
+        } else if (player.crouching) {
+            img = playerCrouching;
+        } else {
+            img = playerStanding;
+        }
+
+        ctx.drawImage(img, player.x, player.y, player.width, player.height);
     }
 
     // Enemigos
@@ -487,7 +522,7 @@ function draw() {
         if (enemy.type === "low") {
             ctx.fillStyle = "red";
         } else {
-            ctx.fillStyle = "purple";
+            ctx.fillStyle = "red";
         }
 
         ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
@@ -545,10 +580,6 @@ function draw() {
 
 }
 
-
-
-
-
 /**************************************************
  * 12. GAME LOOP
  **************************************************/
@@ -560,8 +591,6 @@ function gameLoop() {
     draw();
     requestAnimationFrame(gameLoop);
 }
-
-
 
 /**************************************************
  * 13. INICIO DEL JUEGO

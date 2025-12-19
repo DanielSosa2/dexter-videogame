@@ -1,3 +1,10 @@
+// 1. objetos (player, controls)
+
+// 2. funciones (jump, attack, bindTouch, etc)
+
+// 3. listeners (keydown, touch, DOMContentLoaded)
+
+// 4. gameLoop + update + draw
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -26,6 +33,11 @@ const gravity = 0.6;
 
 const ground_y = canvas.height - stand_height;
 
+const controls = {
+  jump: false,
+  crouch: false,
+  attack: false
+};
 
 
 const player = {
@@ -80,6 +92,26 @@ document.addEventListener("keyup", (e) => {
     }
 });
 
+const bindTouch = (id, action) => {
+  const btn = document.getElementById(id);
+
+  btn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    controls[action] = true;
+  });
+
+  btn.addEventListener("touchend", () => {
+    controls[action] = false;
+  });
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  bindTouch("btn-jump", "jump");
+  bindTouch("btn-crouch", "crouch");
+  bindTouch("btn-attack", "attack");
+
+});
 
 
 
@@ -223,6 +255,32 @@ function update() {
     enemies.forEach(enemy => {
         enemy.x -= speed;
     });
+
+    //Controles para usar mobile
+    function update() {
+
+  // 1️⃣ leer controles
+  if (controls.jump && !player.jumping) {
+    jump();
+  }
+
+  if (controls.crouch) {
+    player.crouching = true;
+  } else {
+    player.crouching = false;
+  }
+
+  if (controls.attack) {
+    attack();
+  }
+
+  // 2️⃣ físicas / movimiento
+  player.y += player.velY;
+  applyGravity();
+
+  // 3️⃣ colisiones, etc
+}
+
 
     speed = 5 + Math.floor(distance / 100);
 

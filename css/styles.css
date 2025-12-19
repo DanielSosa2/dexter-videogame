@@ -152,3 +152,33 @@ p {
         height: 100px;
     }
 }
+@media (max-width: 768px) {
+
+  body {
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  main {
+    padding: 0;
+  }
+
+  #game-container {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  canvas#game {
+    width: 100%;
+    height: 100%;
+  }
+
+  #ad-left {
+    display: none; /* en juegos mobile, mejor fuera */
+  }
+
+  .hud {
+    font-size: 14px;
+  }
+}

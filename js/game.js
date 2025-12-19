@@ -91,10 +91,14 @@ const bindTouch = (id, action) => {
 
     btn.addEventListener("touchstart", (e) => {
         e.preventDefault();
-        controls[action] = true;
-        console.log("TOUCH:", action);
-    });
 
+        // 👇 ARRANCA EL JUEGO SI ESTÁ EN START
+        if (gameState !== "playing") {
+            startGame();
+        }
+
+        controls[action] = true;
+    });
     btn.addEventListener("touchend", () => {
         controls[action] = false;
     });
@@ -203,7 +207,21 @@ function createObstacle() {
 
     obstacles.push(obstacle);
 }
+function startGame() {
+    if (gameState === "start") {
+        gameState = "playing";
+    } else if (gameState === "gameover") {
+        resetGame();
+    }
+}
 
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
 function resetGame() {
     score = 0;
     distance = 0;

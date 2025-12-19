@@ -34,9 +34,9 @@ const gravity = 0.6;
 const ground_y = canvas.height - stand_height;
 
 const controls = {
-  jump: false,
-  crouch: false,
-  attack: false
+    jump: false,
+    crouch: false,
+    attack: false
 };
 
 
@@ -68,14 +68,8 @@ document.addEventListener("keydown", (e) => {
     }
 
     // START
-    if (gameState === "start" && e.key === "Enter") {
-        gameState = "playing";
-        return;
-    }
-
-    // GAME OVER → REINICIAR
-    if (gameState === "gameover" && e.key === "Enter") {
-        resetGame();
+    if (e.key === "Enter") {
+        startGame();
         return;
     }
 
@@ -93,26 +87,32 @@ document.addEventListener("keyup", (e) => {
 });
 
 const bindTouch = (id, action) => {
-  const btn = document.getElementById(id);
+    const btn = document.getElementById(id);
 
-  btn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    controls[action] = true;
-    console.log("TOUCH:", action);
-  });
+    btn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        controls[action] = true;
+        console.log("TOUCH:", action);
+    });
 
-  btn.addEventListener("touchend", () => {
-    controls[action] = false;
-  });
+    btn.addEventListener("touchend", () => {
+        controls[action] = false;
+    });
 };
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  bindTouch("btn-jump", "jump");
-  bindTouch("btn-crouch", "crouch");
-  bindTouch("btn-attack", "attack");
+    bindTouch("btn-jump", "jump");
+    bindTouch("btn-crouch", "crouch");
+    bindTouch("btn-attack", "attack");
 
 });
+document.addEventListener("touchstart", () => {
+    if (gameState !== "playing") {
+        startGame();
+    }
+});
+
 
 
 
@@ -226,7 +226,15 @@ function resetGame() {
  **************************************************/
 
 function update() {
-    if (gameState !== "playing") return;
+    function startGame() {
+        if (gameState === "start") {
+            gameState = "playing";
+        }
+
+        if (gameState === "gameover") {
+            resetGame();
+        }
+    }
 
     // 1️⃣ LEER CONTROLES (PC + MOBILE)
     if (controls.jump && !player.jumping) {
@@ -392,8 +400,8 @@ function draw() {
         attackText.y -= 1;   // sube
         attackText.timer--;
     }
-    
-    
+
+
     // HUD
     const margin = 20;
     const lineHeight = 26;

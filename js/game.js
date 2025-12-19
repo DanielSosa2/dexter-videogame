@@ -98,6 +98,7 @@ const bindTouch = (id, action) => {
   btn.addEventListener("touchstart", (e) => {
     e.preventDefault();
     controls[action] = true;
+    console.log("TOUCH:", action);
   });
 
   btn.addEventListener("touchend", () => {
@@ -227,68 +228,64 @@ function resetGame() {
 function update() {
     if (gameState !== "playing") return;
 
-    // Gravedad
+    // 1️⃣ LEER CONTROLES (PC + MOBILE)
+    if (controls.jump && !player.jumping) {
+        jump();
+    }
+
+    if (controls.crouch) {
+        player.crouching = true;
+    } else {
+        player.crouching = false;
+    }
+
+    if (controls.attack) {
+        attack();
+    }
+
+    // 2️⃣ FÍSICAS
     player.y += player.velY;
     player.velY += gravity;
 
-    // Suelo (los pies SIEMPRE en ground_y)
+    // Suelo
     if (player.y + player.height >= ground_y) {
         player.y = ground_y - player.height;
         player.velY = 0;
         player.jumping = false;
     }
-    //OBSTACULOS
+
+    // 3️⃣ OBSTÁCULOS
     if (distance % 300 === 0) {
         createObstacle();
     }
+
     obstacles.forEach(obstacle => {
         obstacle.x -= speed;
     });
-    //RECIBIR DAÑO (parpadeo de pantalla)
+
+    // 4️⃣ ENEMIGOS
+    enemies.forEach(enemy => {
+        enemy.x -= speed;
+    });
+
+    // 5️⃣ DAÑO
     if (player.hurt) {
         player.hurtTimer--;
         if (player.hurtTimer <= 0) {
             player.hurt = false;
         }
     }
-    // Mover enemigos
-    enemies.forEach(enemy => {
-        enemy.x -= speed;
-    });
 
-    //Controles para usar mobile
-    function update() {
-
-  // 1️⃣ leer controles
-  if (controls.jump && !player.jumping) {
-    jump();
-  }
-
-  if (controls.crouch) {
-    player.crouching = true;
-  } else {
-    player.crouching = false;
-  }
-
-  if (controls.attack) {
-    attack();
-  }
-
-  // 2️⃣ físicas / movimiento
-  player.y += player.velY;
-  applyGravity();
-
-  // 3️⃣ colisiones, etc
-}
-
-
+    // 6️⃣ VELOCIDAD
     speed = 5 + Math.floor(distance / 100);
 
+    // 7️⃣ COLISIONES
     checkCollisions();
 
     distance++;
     score++;
 }
+
 
 
 /**************************************************

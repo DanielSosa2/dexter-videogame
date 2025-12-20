@@ -37,7 +37,7 @@ let attackText = {
 const crouch_height = 60;
 const stand_height = 140;
 const bgImg = new Image();
-bgImg.src = "assets/background/background.PNG";
+bgImg.src = "assets/background/background.png";
 
 bgImg.onload = () => console.log("Fondo cargado");
 bgImg.onerror = () => console.log("Error cargando fondo");
@@ -51,17 +51,17 @@ enemyImages.flying.src = "assets/enemy/enemy-jump.png";
 const gravity = 0.6;
 // IMÁGENES DEL JUGADOR
 const playerStanding = new Image();
-playerStanding.src = "assets/player/Ninja-parado.png";
-playerStanding.onload = () => console.log("standing listo");
+playerStanding.src = "assets/player/ninja-parado.png";
+playerStanding.onload = () => console.log("standnng listo");
 playerStanding.onerror = () => console.error("Error cargando standing.png");
 
 const playerJumping = new Image();
-playerJumping.src = "assets/player/Ninja-saltando.png";
+playerJumping.src = "assets/player/ninja-saltando.png";
 playerJumping.onload = () => console.log("jumping listo");
 playerJumping.onerror = () => console.error("Error cargando jumping.png");
 
 const playerCrouching = new Image();
-playerCrouching.src = "assets/player/Ninja-agachado.png";
+playerCrouching.src = "assets/player/ninja-agachado.png";
 playerCrouching.onload = () => console.log("crouching listo");
 playerCrouching.onerror = () => console.error("Error cargando crouching.png");
 
@@ -562,6 +562,7 @@ function draw() {
     }
 
     // ⬇️ TODO LO DEMÁS DEL DRAW NORMAL
+    if (!img || !img.complete || img.naturalWidth === 0) return;
     // PISO
     ctx.fillStyle = "#5a3a1a"; // marrón más lindo
     ctx.fillRect(0, ground_y - 10, canvas.width, 10);

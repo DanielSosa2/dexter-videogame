@@ -41,6 +41,12 @@ bgImg.src = "assets/background/background.PNG";
 
 bgImg.onload = () => console.log("Fondo cargado");
 bgImg.onerror = () => console.log("Error cargando fondo");
+const enemyImages = {
+    ground: new Image(),
+    flying: new Image()
+};
+enemyImages.ground.src = "assets/enemy/enemy-standing.png";
+enemyImages.flying.src = "assets/enemy/enemy-jump.png";
 
 const gravity = 0.6;
 // IMÁGENES DEL JUGADOR
@@ -244,11 +250,11 @@ function createEnemy() {
     };
 
     if (type === "low") {
-        enemy.height = 50;
+        enemy.height = 100;
         enemy.y = ground_y - enemy.height;
     } else {
-        enemy.height = 60;
-        enemy.y = ground_y - enemy.height - 80; // enemigo alto
+        enemy.height = 80;
+        enemy.y = ground_y - enemy.height - 120; // enemigo alto
     }
 
     enemies.push(enemy);
@@ -589,19 +595,25 @@ function draw() {
         ctx.drawImage(img, player.x, player.y, player.width, player.height);
     }
 
-    // Enemigos
     enemies.forEach(enemy => {
         if (!enemy.alive) return;
 
+        let img;
+
         if (enemy.type === "low") {
-            ctx.fillStyle = "red";
+            img = enemyImages.ground;
         } else {
-            ctx.fillStyle = "red";
+            img = enemyImages.flying;
         }
 
-        ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+        ctx.drawImage(
+            img,
+            enemy.x,
+            enemy.y,
+            enemy.width,
+            enemy.height
+        );
     });
-
 
     //ataque
 

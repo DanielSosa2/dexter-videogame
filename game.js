@@ -8,6 +8,7 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
+
 let imagesLoaded = 0;       // Contador de imágenes que ya cargaron
 const totalImages = 3;      // Cantidad total de imágenes del jugador
 
@@ -35,6 +36,11 @@ let attackText = {
 //CONSTANTES
 const crouch_height = 60;
 const stand_height = 140;
+const bgImg = new Image();
+bgImg.src = "assets/background/background.PNG";
+
+bgImg.onload = () => console.log("Fondo cargado");
+bgImg.onerror = () => console.log("Error cargando fondo");
 
 const gravity = 0.6;
 // IMÁGENES DEL JUGADOR
@@ -52,6 +58,24 @@ const playerCrouching = new Image();
 playerCrouching.src = "assets/player/Ninja-agachado.png";
 playerCrouching.onload = () => console.log("crouching listo");
 playerCrouching.onerror = () => console.error("Error cargando crouching.png");
+
+const katanaImg = new Image();
+katanaImg.src = "assets/weapons/katana.png";
+
+katanaImg.onload = () => console.log("Katana lista");
+katanaImg.onerror = () => console.log("Error cargando katana.png");
+// Sonidos del jugador
+const soundJump = new Audio("assets/sounds/jumplanding.wav");
+const soundAttack = new Audio("assets/sounds/katana.wav");
+const soundHit = new Audio("assets/sounds/hit-sword.wav");
+const soundGameOver = new Audio("assets/sounds/death-sound.wav");
+const soundHitPlayer = new Audio("assets/sounds/ouch.wav");
+//musica
+const bgMusic = new Audio("assets/music/ninja-trap-beat-245893.mp3");
+bgMusic.loop = true;      // para que se repita infinitamente
+bgMusic.volume = 0.3;     // ajustar volumen (0 a 1)
+
+
 
 // const ground_y = canvas.height - stand_height;
 
@@ -148,9 +172,14 @@ document.addEventListener("touchstart", () => {
  **************************************************/
 
 function jump() {
-    player.velY = -13;
-    player.jumping = true;
+    if (!player.jumping) {
+        player.jumping = true;
+        player.velY = -12; // ejemplo de salto
+        soundJump.currentTime = 0; // reinicia el sonido si se repite
+        soundJump.play();
+    }
 }
+
 function updateGround() {
     ground_y = canvas.height - stand_height;
 }
@@ -176,7 +205,7 @@ function getAttackHitbox() {
     return {
         x: player.x + player.width,
         y: player.crouching ? player.y + player.height - 30 : player.y + 17,
-        width: 80,
+        width: 120,
         height: 20,
     };
 }
@@ -187,6 +216,8 @@ function attack() {
 
     player.attacking = true;
     console.log("atacando");
+    soundAttack.currentTime = 0;
+    soundAttack.play();
 
     attackText.text = "MUERE INSECTO!";
     attackText.x = player.x + 20;
@@ -223,12 +254,15 @@ function createEnemy() {
     enemies.push(enemy);
 }
 
+
 function checkAllLoaded() {
     imagesLoaded++;
     if (imagesLoaded === totalImages) {
         // Todas las imágenes están listas
         startGame();  // iniciar el juego o el gameLoop
+
     }
+
 }
 function createObstacle() {
     const obstacle = {
@@ -243,6 +277,11 @@ function createObstacle() {
 function startGame() {
     console.log("Estado actual:", gameState);
     updateGround();
+
+    // Reproducir música SOLO si no se está tocando ya
+    if (bgMusic.paused) {
+        bgMusic.play();
+    }
     if (gameState === "start") {
         gameState = "playing";
         gameRunning = true;
@@ -250,6 +289,21 @@ function startGame() {
     }
     else if (gameState === "gameover") {
         resetGame();
+    }
+}
+function gameOver() {
+    if (gameState === "gameover") return; // evita múltiples llamadas
+
+    gameState = "gameover";
+    gameRunning = false; // detener el loop si es necesario
+
+    // Pausar música de fondo
+    if (!bgMusic.paused) bgMusic.pause();
+
+    // Reproducir sonido de gameOver
+    if (soundGameOver.paused) {
+        soundGameOver.currentTime = 0;
+        soundGameOver.play();
     }
 }
 function resetGame() {
@@ -267,9 +321,15 @@ function resetGame() {
 
     gameState = "playing";
     gameRunning = true;
-    gameLoop();
-}
+    // Reiniciar música de fondo
+    if (bgMusic.paused) {
+        bgMusic.currentTime = 0;
+        bgMusic.play();
+    }
 
+    gameLoop();
+
+}
 
 
 function resizeCanvas() {
@@ -395,15 +455,22 @@ function checkCollisions() {
             ) {
                 lives--;
                 gameState = "gameover";
+
+
             }
         });
+
         // COLISIÓN NORMAL (daño al jugador)
         if (isColliding(player, enemy)) {
+
             enemy.alive = false;
             lives--;
 
             player.hurt = true;
             player.hurtTimer = 30; // frames
+            soundHitPlayer.currentTime = 0; // reinicia el sonido si se repite
+            soundHitPlayer.play();
+
 
             if (lives <= 0) {
                 gameState = "gameover";
@@ -420,6 +487,8 @@ function checkCollisions() {
 function draw() {
     ctx.setTransform(1, 0, 0, 1, 0, 0); // 🔥 RESET TOTAL
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
     if (gameState === "start") {
         ctx.fillStyle = "rgba(0,0,0,0.85)";
@@ -492,8 +561,13 @@ function draw() {
     }
 
     // ⬇️ TODO LO DEMÁS DEL DRAW NORMAL
-    ctx.fillStyle = "brown"
-    ctx.fillRect(0, ground_y - 2, canvas.width, 2);
+    // PISO
+    ctx.fillStyle = "#5a3a1a"; // marrón más lindo
+    ctx.fillRect(0, ground_y - 10, canvas.width, 10);
+
+    // sombra arriba del piso
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.fillRect(0, ground_y - 10, canvas.width, 2);
     //OBSTACULOS
     ctx.fillStyle = "brown";
     obstacles.forEach(obstacle => {
@@ -533,10 +607,9 @@ function draw() {
 
     if (player.attacking) {
         const hit = getAttackHitbox();
-        ctx.fillStyle = "rgba(240, 7, 182, 0.6)";
-        ctx.fillRect(hit.x, hit.y, hit.width, hit.height);
+        // Dibujar la katana
+        ctx.drawImage(katanaImg, hit.x, hit.y, hit.width, hit.height);
     }
-
 
     if (attackText.timer > 0) {
         ctx.font = "18px Arial";

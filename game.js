@@ -77,9 +77,9 @@ const soundHit = new Audio("assets/sounds/hit-sword.wav");
 const soundGameOver = new Audio("assets/sounds/death-sound.wav");
 const soundHitPlayer = new Audio("assets/sounds/ouch.wav");
 //musica
-const bgMusic = new Audio("assets/music/ninja-trap-beat-245893.mp3");
+const bgMusic = new Audio("assets/music/samurai-epic.mp3");
 bgMusic.loop = true;      // para que se repita infinitamente
-bgMusic.volume = 0.3;     // ajustar volumen (0 a 1)
+bgMusic.volume = 0.2;     // ajustar volumen (0 a 1)
 
 
 
@@ -130,6 +130,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key === " " && !player.jumping) jump();
     if (e.key === "ArrowDown") crouch(true);
     if (e.key === "z") attack();
+    
 });
 
 
@@ -237,25 +238,19 @@ function attack() {
 
 
 function createEnemy() {
-
     const type = Math.random() < 0.5 ? "low" : "high";
 
-    let enemy = {
+    const enemy = {
+        type,
         x: canvas.width,
-        y: 0,
-        width: 40,
-        height: 0,
-        alive: true,
-        type: type
+        width: type === "low" ? 50 : 40,
+        height: type === "low" ? 100 : 80,
+        y: type === "low"
+            ? ground_y - 100
+            : ground_y - 80 - 120,
+        speed: type === "low" ? 3 : 2,
+        alive: true
     };
-
-    if (type === "low") {
-        enemy.height = 100;
-        enemy.y = ground_y - enemy.height;
-    } else {
-        enemy.height = 80;
-        enemy.y = ground_y - enemy.height - 120; // enemigo alto
-    }
 
     enemies.push(enemy);
 }

@@ -591,24 +591,22 @@ function draw() {
     }
 
     enemies.forEach(enemy => {
-        if (!enemy.alive) return;
+    if (!enemy.alive) return;
 
-        let img;
+    let img = enemy.type === "low"
+        ? enemyImages.ground
+        : enemyImages.flying;
 
-        if (enemy.type === "low") {
-            img = enemyImages.ground;
-        } else {
-            img = enemyImages.flying;
-        }
+    if (!img || !img.complete || img.naturalWidth === 0) return;
 
-        ctx.drawImage(
-            img,
-            enemy.x,
-            enemy.y,
-            enemy.width,
-            enemy.height
-        );
-    });
+    ctx.drawImage(
+        img,
+        enemy.x,
+        enemy.y,
+        enemy.width,
+        enemy.height
+    );
+});
 
     //ataque
 
